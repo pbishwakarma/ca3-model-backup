@@ -20,10 +20,10 @@ class Neuron():
 	refractory = 2
 
 	# nmda constants
-	b_act_step, b_deact_step = 0.1, 3.0		# 0.1, 3.0
-	p_act_step, p_deact_step = 0.20, 3.8		# 0.12, 3.8
-	tau_nmda_act = 3.0
-	tau_nmda_deact = 200
+	b_act_step, b_deact_step = 0.3, 7.0		# 0.1, 3.0
+	p_act_step, p_deact_step = 0.28, 2.8	# 0.12, 3.8
+	tau_nmda_act = 6.5
+	tau_nmda_deact = 145.0
 	E_nmda = 5.50 		# 
 
 
@@ -116,7 +116,9 @@ class Neuron():
 		dactdt = -self._nmda_act / Neuron.tau_nmda_act
 		ddeactdt = -self._nmda_deact / Neuron.tau_nmda_deact
 
-		self._mgblock = 1/(1+ (math.exp(-6*(self._membrane_potential - 0.3))))
+		#self._mgblock = 1/(1+ (math.exp(-6*(self._membrane_potential - 0.3))))
+		#self._mgblock = 1/(1+ (math.exp(-8.0*(self._membrane_potential - 0.3))))
+		self._mgblock = 1/(1+ (math.exp(-10*(self._membrane_potential-0.6))))
 		self._nmda_act = self._prev_nmda_act + (dactdt * timestep)
 		self._nmda_deact = self._prev_nmda_deact + (ddeactdt * timestep)
 
@@ -207,7 +209,7 @@ class Neuron():
 		using the Euler method on the membrane equation which is denoted
 		below:
 
-		dvdt  =	g(V) - g_inh(V - E_inh) - g_exc(V - E_exc) - 
+		dvdt  =	-g(V) - g_inh(V - E_inh) - g_exc(V - E_exc) - 
 				g(V - E_nmda) + i_background
 
 		Args
@@ -223,7 +225,7 @@ class Neuron():
 		self._prev_membrane_potential = self._membrane_potential
 		dvdt = -Neuron.gl * self._prev_membrane_potential - \
 		self._inh_conduc * (self._prev_membrane_potential - Neuron.E_inh) - \
-		self._exc_conduc * (self._prev_membrane_potential - Neuron.E_exc) - \
+		self._exc_conduc * (self._prev_membrane_potential - Neuron.E_exc) + \
 		self._nmda_conduc * (self._prev_membrane_potential - Neuron.E_nmda) + \
 		self._background_current
 
@@ -235,17 +237,20 @@ class Neuron():
 		self.CalcExcConductance(current_time)
 		self.CalcInhConductance(current_time)
 		self.CalcBackgroundCurrent()
-		# if self._type == 0:
-		# 	self.CalcNMDAConductance(current_time, timestep)
+
+		#if self._type == 0:
+		#	self.CalcNMDAConductance(current_time, timestep)
+
 		# if self._type == 1:
 		# 	self.CalcNMDAConductance(current_time, timestep)
+
 		self.CalcNMDAConductance(current_time, timestep)
 		self.saveInfo()
 
 	def saveInfo(self):
 		inh = -self._inh_conduc * (self._prev_membrane_potential - Neuron.E_inh)
 		exc = -self._exc_conduc * (self._prev_membrane_potential - Neuron.E_exc)
-		nmda = -self._nmda_conduc * (self._prev_membrane_potential - Neuron.E_nmda)
+		nmda = self._nmda_conduc * (self._prev_membrane_potential - Neuron.E_nmda)
 	
 		self._mem_pot.append(self._membrane_potential)
 		self._inh.append(inh)

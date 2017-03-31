@@ -21,6 +21,34 @@ def splitAndSum(l, n):
 
   return sums
 
+##Instantaneous cycle frequencies for Figure 8
+def getCycleFreqs(lfp):
+	max_freq = 200
+	window = 10
+	peaks, troughs = gp.getOscillationPds(lfp)
+	cycle_freqs = []
+	for cyc in peaks:
+		end, beg = cyc[1], cyc[0]
+		cycle_freqs.append(1/((end - beg)/10))
+
+	cycle_freqs.sort()
+
+	cycles = []
+
+	for i in range(max_freq):
+		count = 0
+		for j in range(0, len(cycle_freqs)):
+			if abs(i - cycle_freqs[j]) < window:
+				count += 1
+		cycles.append(count)
+
+	return cycles
+
+
+
+
+
+
 def getOscPdInfo(lfp, exc, inh, nmda):
 	peaks, troughs = gp.getOscillationPds(lfp)
 	e_pds, i_pds, nmda_pds = [], [], []
@@ -398,7 +426,14 @@ def main():
 			i_spike_times.append(sum(inh_spike_times[i-50: len(inh_spike_times) - 1]))
 
 
+	#
+	#		Fiure 8
+	#
+	
+	freq_sums = getCycleFreqs(avg_field_potential)
 
+	sio.savemat('Run Data\e_integrated_exc.mat', {'e_exc':e_integrated_exc})
+	sio.savemat('Run Data\cycle_freqs.mat', {'freq_sums':freq_sums})
 
 
 
