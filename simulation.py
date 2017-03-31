@@ -240,10 +240,13 @@ def main():
 	# constants used in the simulation
 	interneuron_count = 50
 	pyramidal_count = 200
+	
 	pp_probability = 0.05
+	pb_probability = 0.25	#0.85
+	
 	bp_probability = 0.15	#0.15
 	bb_probability = 0.25   #0.15
-	pb_probability = 0.25	#0.85
+	
 	time_step = 0.1
 	total_time = 600
 	current_time = 0.0
